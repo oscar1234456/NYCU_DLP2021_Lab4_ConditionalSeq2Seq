@@ -5,6 +5,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 #Encoder
 class EncoderRNN(nn.Module):
     def __init__(self, input_size, hidden_size, latent_size):
+        #LSTM:(L=1, N=1, H_in = hidden_size)
         #hidden_size is included Hidden len + Condition code len
         super(EncoderRNN, self).__init__()
         self.hidden_size = hidden_size
@@ -17,6 +18,9 @@ class EncoderRNN(nn.Module):
 
     def forward(self, input, hidden):
         #hidden must the tuple :(h_0, cell_0)
+        # hidden_size is included Hidden len + Condition code len
+        #h_0: (1,1,hidden_size)
+        #cell_0:(1,1,hidden_size)
         embedded = self.embedding(input)
         for wordVec in embedded:
             resizeWordVec = wordVec.view(1, 1, -1)
