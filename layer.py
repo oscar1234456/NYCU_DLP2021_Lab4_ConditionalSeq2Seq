@@ -25,7 +25,7 @@ class EncoderRNN(nn.Module):
         #h_0: (1,1,hidden_size)
         #cell_0:(1,1,hidden_size)
         embedded = self.embedding(input)
-        for wordVec in embedded:
+        for wordVec in embedded:  #iteration all letter in this word
             resizeWordVec = wordVec.view(1, 1, -1)
             output, hidden = self.lstm(resizeWordVec, hidden)  #output is unuseful
         finalHidden = hidden[0]

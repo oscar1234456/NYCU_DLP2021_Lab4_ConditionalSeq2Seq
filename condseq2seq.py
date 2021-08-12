@@ -67,7 +67,7 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
     loss = 0
 
     #----------sequence to sequence part for encoder----------#
-    encoder_output, encoder_hidden = encoder(input_tensor, encoder_hidden)
+    encoder_output, encoder_hidden = encoder(input_tensor, encoder_hidden) #encoder(input, hidden->tuple(h_0,c_0))
 
 
     decoder_input = torch.tensor([[SOS_token]], device=device)
