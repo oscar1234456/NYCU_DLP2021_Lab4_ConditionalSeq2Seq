@@ -13,8 +13,11 @@ class EncoderRNN(nn.Module):
         self.embedding = nn.Embedding(input_size, hidden_size)
         self.lstm = nn.LSTM(hidden_size, hidden_size)
 
-        self.linear_mean = nn.Linear(hidden_size, latent_size)
-        self.linear_logVar = nn.Linear(hidden_size, latent_size)
+        self.linear_hidden_mean = nn.Linear(hidden_size, latent_size)
+        self.linear_hidden_logVar = nn.Linear(hidden_size, latent_size)
+
+        self.linear_cell_mean = nn.Linear(hidden_size, latent_size)
+        self.linear_cell_logVar = nn.Linear(hidden_size, latent_size)
 
     def forward(self, input, hidden):
         #hidden must the tuple :(h_0, cell_0)
@@ -26,9 +29,12 @@ class EncoderRNN(nn.Module):
             resizeWordVec = wordVec.view(1, 1, -1)
             output, hidden = self.lstm(resizeWordVec, hidden)  #output is unuseful
         finalHidden = hidden[0]
-        mean = self.linear_mean(finalHidden)
-        logVar = self.linear_logVar(finalHidden)
-        return mean, logVar
+        finalCell = hidden[1]
+        hidden_mean = self.linear_hidden_mean(finalHidden)
+        hidden_logVar = self.linear_hidden_logVar(finalHidden)
+        cell_mean = self.linear_cell_mean(finalCell)
+        cell_logVar = self.linear_cell_logVar(finalCell)
+        return hidden_mean, hidden_logVar, cell_mean, cell_logVar
 
     def initHidden(self):
         return torch.zeros(1, 1, self.hidden_size, device=device)
@@ -62,3 +68,14 @@ class DecoderRNN(nn.Module):
         return torch.zeros(1, 1, self.hidden_size, device=device)
     def initCell(self):
         return torch.zeros(1, 1, self.hidden_size, device=device)
+
+class hiddenCellLinear(nn.Module):
+    def __init__(self, input_size, output_size):
+        # input: latent code+condition (latent_size + condEmbedding_size)
+        # output: hidden_size for next LSTM
+        super(hiddenCellLinear, self).__init__()
+        self.out = nn.Linear(input_size, output_size)
+
+    def forward(self, input):
+        output = self.out(input) #LSTM output:(1,1,hidden_size)
+        return output
