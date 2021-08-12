@@ -1,8 +1,5 @@
 from __future__ import unicode_literals, print_function, division
 from io import open
-import unicodedata
-import string
-import re
 import random
 import time
 import math
@@ -16,6 +13,7 @@ import matplotlib.ticker as ticker
 import numpy as np
 from os import system
 from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
+from dataloader import WordSet
 
 
 
@@ -49,8 +47,10 @@ EOS_token = 1
 hidden_size = 256
 #The number of vocabulary
 vocab_size = 28
+latent_size = 32
+condEmbedding_size = 8
 teacher_forcing_ratio = 1.0
-empty_input_ratio = 0.1
+# empty_input_ratio = 0.1
 KLD_weight = 0.0
 LR = 0.05
 
@@ -215,8 +215,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
-    training_pairs = [tensorsFromPair(random.choice(pairs))
-                      for i in range(n_iters)]
+    pairs = WordSet().getWordPair() #read training data
+    training_pairs = [random.choice(pairs) for _ in range(n_iters)] #random choose wordpairs
     criterion = nn.CrossEntropyLoss()
 
     for iter in range(1, n_iters + 1):

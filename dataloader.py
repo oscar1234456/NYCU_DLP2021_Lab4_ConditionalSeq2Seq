@@ -1,13 +1,40 @@
+import torch
 class WordSet:
     def __init__(self):
-        pass
+        self.wordBank = self._readFile() #(1227*4)
+        self.SOSToken = 0
+        self.EOSToken = 1
 
     def _readFile(self):
         with open("./data/train.txt", 'r') as f:
-            a = f.read()
+            wordBank  = list()
+            lines = f.readlines()
+            for line in lines:
+                wordBank.append(line.split())
+        return wordBank
+    def _letter2Num(self, letter):
+        #ord('a'):97
+        #SOS:0/EOS:1
+        return ord(letter)- 97 + 2
+
+    def _word2Tensor(self, word):
+        # one word into a tensor contained number and plus eos token
+        toTensorList = list()
+        for letter in word:
+            toTensorList.append([self._letter2Num(letter)])
+        toTensorList.append([self.EOSToken])
+        return torch.LongTensor(toTensorList)
 
     def getWordPair(self):
-        pass
+        #tense: {0:sp, 1:tp, 2:pg, 3:p}
+        pairsList = list()
+        for wordLine in self.wordBank:
+            for tense, word in enumerate(wordLine):
+                pairsList.append([self._word2Tensor(word), tense])
+        return pairsList
+
 
 if __name__ == '__main__':
-    print(123);
+    a = WordSet()
+    pairs = a.getWordPair()
+    print()
