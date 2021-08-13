@@ -30,7 +30,7 @@ class WordSet:
         pairsList = list()
         for wordLine in self.wordBank:
             for tense, word in enumerate(wordLine):
-                pairsList.append([self._word2Tensor(word), tense])
+                pairsList.append([self._word2Tensor(word), torch.LongTensor([tense])])
         return pairsList
 
 
