@@ -1,4 +1,5 @@
 import torch
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class WordSet:
     def __init__(self):
         self.wordBank = self._readFile() #(1227*4)
@@ -23,14 +24,14 @@ class WordSet:
         for letter in word:
             toTensorList.append([self._letter2Num(letter)])
         toTensorList.append([self.EOSToken])
-        return torch.LongTensor(toTensorList)
+        return torch.cuda.LongTensor(toTensorList)
 
     def getWordPair(self):
         #tense: {0:sp, 1:tp, 2:pg, 3:p}
         pairsList = list()
         for wordLine in self.wordBank:
             for tense, word in enumerate(wordLine):
-                pairsList.append([self._word2Tensor(word), torch.LongTensor([tense])])
+                pairsList.append([self._word2Tensor(word), torch.cuda.LongTensor([tense])])
         return pairsList
 
 

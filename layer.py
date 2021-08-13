@@ -36,10 +36,10 @@ class EncoderRNN(nn.Module):
         cell_logVar = self.linear_cell_logVar(finalCell)
         return hidden_mean, hidden_logVar, cell_mean, cell_logVar
 
-    def initHidden(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
-    def initCell(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
+    def initHidden(self, conditionCode_size):
+        return torch.zeros(1, 1, self.hidden_size-conditionCode_size, device=device)
+    def initCell(self,conditionCode_size):
+        return torch.zeros(1, 1, self.hidden_size-conditionCode_size, device=device)
 
 #Decoder
 class DecoderRNN(nn.Module):
@@ -64,10 +64,10 @@ class DecoderRNN(nn.Module):
         output = self.out(output[0]) #LSTM output:(1,1,hidden_size)
         return output, hidden
 
-    def initHidden(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
-    def initCell(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
+    def initHidden(self, conditionCode_size):
+        return torch.zeros(1, 1, self.hidden_size - conditionCode_size, device=device)
+    def initCell(self,conditionCode_size):
+        return torch.zeros(1, 1, self.hidden_size-conditionCode_size, device=device)
 
 class hiddenCellLinear(nn.Module):
     def __init__(self, input_size, output_size):
