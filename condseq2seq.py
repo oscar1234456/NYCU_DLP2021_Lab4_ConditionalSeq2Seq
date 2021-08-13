@@ -47,7 +47,7 @@ print(f"Using device:{device}")
 SOS_token = 0
 EOS_token = 1
 # ----------Hyper Parameters----------#
-hidden_size = 256
+hidden_size = 128
 # The number of vocabulary
 vocab_size = 28
 latent_size = 32
@@ -56,7 +56,7 @@ condi_size = 4
 teacher_forcing_ratio = 1.0
 # empty_input_ratio = 0.1
 KLD_weight = 0.0
-LR = 0.05
+LR = 0.01
 
 
 def train(input_tensor, target_tensor, condition_tensor, encoder: EncoderRNN, decoder: DecoderRNN, hiddenLinear,
@@ -111,6 +111,8 @@ def train(input_tensor, target_tensor, condition_tensor, encoder: EncoderRNN, de
             decoder_output, decoder_hidden = decoder(decoder_input, decoder_hidden)
             loss += criterion(decoder_output, target_tensor[di])
             decoder_input = target_tensor[di]  # Teacher forcing
+            if np.isnan(loss.item()):
+                print('Loss value is NaN!')
 
     else:
         # Without teacher forcing: use its own predictions as the next input
@@ -182,6 +184,7 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
         plot_loss_total += loss
 
         if iter % print_every == 0:
+            print(f"print_loss_total:{print_loss_total},print_every:{print_every} ")
             print_loss_avg = print_loss_total / print_every
             print_loss_total = 0
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),

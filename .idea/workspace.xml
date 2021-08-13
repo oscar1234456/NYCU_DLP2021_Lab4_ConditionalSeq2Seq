@@ -4,8 +4,7 @@
     <list default="true" id="fdb0df4e-718c-40a6-9ae5-447661273c25" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/condseq2seq.py" beforeDir="false" afterPath="$PROJECT_DIR$/condseq2seq.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataloader.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataloader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/layer.py" beforeDir="false" afterPath="$PROJECT_DIR$/layer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utility.py" beforeDir="false" afterPath="$PROJECT_DIR$/utility.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -162,7 +161,7 @@
       <workItem from="1628497734348" duration="28000" />
       <workItem from="1628737405002" duration="3526000" />
       <workItem from="1628770742122" duration="18510000" />
-      <workItem from="1628823004303" duration="11324000" />
+      <workItem from="1628823004303" duration="25944000" />
     </task>
     <servers />
   </component>
@@ -183,16 +182,44 @@
     </option>
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/condseq2seq.py</url>
+          <line>114</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
-        <watch expression="encoder_hidden[0]" language="Python" />
-        <watch expression="encoder_hidden[1]" language="Python" />
+        <watch expression="target_tensor" language="Python" />
+        <watch expression="di" language="Python" />
+        <watch expression="target_tensor[di]" language="Python" />
+        <watch expression="loss" language="Python" />
+        <watch expression="decoder_output" language="Python" />
+        <watch expression="decoder_hidden" language="Python" />
+        <watch expression="loss.item()" language="Python" />
+        <watch expression="condition_hidden_latent" language="Python" />
+        <watch expression="condition_cell_latent" language="Python" />
+        <watch expression="conditionEmbedded" language="Python" />
+        <watch expression="cell_latent" language="Python" />
+        <watch expression="hidden_mean" language="Python" />
+        <watch expression="hidden_logVar" language="Python" />
+        <watch expression="cell_mean" language="Python" />
+        <watch expression="cell_logVar" language="Python" />
+        <watch expression="cell_latent" />
+        <watch expression="hidden_latent" language="Python" />
+        <watch expression="torch.exp(cell_logVar*0.5)" language="Python" />
+        <watch expression="conditionHidden" language="Python" />
+        <watch expression="encoder_hidden" language="Python" />
+        <watch expression="torch.exp(cell_logVar*0.5)" language="Python" />
       </configuration>
     </watches-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/condseq2seq$dataloader.coverage" NAME="dataloader Coverage Results" MODIFIED="1628827550752" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/condseq2seq$condseq2seq.coverage" NAME="condseq2seq Coverage Results" MODIFIED="1628833967441" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/condseq2seq$condseq2seq.coverage" NAME="condseq2seq Coverage Results" MODIFIED="1628850711610" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/condseq2seq$layer.coverage" NAME="layer Coverage Results" MODIFIED="1628825492128" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
