@@ -1,3 +1,4 @@
+##
 from __future__ import unicode_literals, print_function, division
 from io import open
 import random
@@ -8,14 +9,15 @@ import torch.nn as nn
 from torch import optim
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+
 plt.switch_backend('agg')
 import matplotlib.ticker as ticker
 import numpy as np
 from os import system
 from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 from dataloader import WordSet
-from layer import EncoderRNN,DecoderRNN
-
+from layer import EncoderRNN, DecoderRNN
+##
 """========================================================================================
 The sample.py includes the following template functions:
 
@@ -41,9 +43,9 @@ You should check them before starting your lab.
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 SOS_token = 0
 EOS_token = 1
-#----------Hyper Parameters----------#
+# ----------Hyper Parameters----------#
 hidden_size = 256
-#The number of vocabulary
+# The number of vocabulary
 vocab_size = 28
 latent_size = 32
 condEmbedding_size = 8
@@ -53,8 +55,10 @@ KLD_weight = 0.0
 LR = 0.05
 
 
-def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion):
-    encoder_hidden = encoder.initHidden()
+def train(input_tensor, target_tensor, encoder: EncoderRNN, decoder: DecoderRNN, encoder_optimizer, decoder_optimizer,
+          criterion):
+    encoder_hidden = encoder.initHidden()  # return (1,1,hidden_size) for hidden_0
+    encoder_cell = encoder.initCell()  # return (1,1,hidden_size) for cell_0
 
     encoder_optimizer.zero_grad()
     decoder_optimizer.zero_grad()
@@ -66,9 +70,8 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
 
     loss = 0
 
-    #----------sequence to sequence part for encoder----------#
-    encoder_output, encoder_hidden = encoder(input_tensor, encoder_hidden) #encoder(input, hidden->tuple(h_0,c_0))
-
+    # ----------sequence to sequence part for encoder----------#
+    encoder_output, encoder_hidden = encoder(input_tensor, encoder_hidden)  # encoder(input, hidden->tuple(h_0,c_0))
 
     decoder_input = torch.tensor([[SOS_token]], device=device)
 
@@ -76,8 +79,7 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
 
     use_teacher_forcing = True if random.random() < teacher_forcing_ratio else False
 
-
-    #----------sequence to sequence part for decoder----------#
+    # ----------sequence to sequence part for decoder----------#
     if use_teacher_forcing:
         # Teacher forcing: Feed the target as the next input
         for di in range(target_length):
@@ -120,7 +122,6 @@ def timeSince(since, percent):
     return '%s (- %s)' % (asMinutes(s), asMinutes(rs))
 
 
-
 def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
     start = time.time()
     plot_losses = []
@@ -129,14 +130,19 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
-    pairs = WordSet().getWordPair() #read training data
-    training_pairs = [random.choice(pairs) for _ in range(n_iters)] #random choose wordpairs
+    linear_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)  # for latent to hidden to next decoder
+
+    pairs = WordSet().getWordPair()  # read training data
+    training_pairs = [random.choice(pairs) for _ in range(n_iters)]  # random choose wordpairs
+    # training_pairs format: [[tensor([[1],[2],[3]...]), 1], [],.....,[]]
+
     criterion = nn.CrossEntropyLoss()
 
     for iter in range(1, n_iters + 1):
         training_pair = training_pairs[iter - 1]
         input_tensor = training_pair[0]
-        target_tensor = training_pair[1]
+        target_tensor = training_pair[0]
+        condition = training_pair[1]
 
         loss = train(input_tensor, target_tensor, encoder,
                      decoder, encoder_optimizer, decoder_optimizer, criterion)
@@ -148,8 +154,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print_loss_total = 0
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
-
-
+        #TODO: Handle model save here(maybe store parameter and final output great model and save outside)
 
 encoder1 = EncoderRNN(vocab_size, hidden_size).to(device)
 decoder1 = DecoderRNN(hidden_size, vocab_size).to(device)

@@ -77,5 +77,21 @@ class hiddenCellLinear(nn.Module):
         self.out = nn.Linear(input_size, output_size)
 
     def forward(self, input):
-        output = self.out(input) #LSTM output:(1,1,hidden_size)
+        output = self.out(input)
         return output
+
+class ConditionEmbegging(nn.Module):
+    def __init__(self, condi_size, condEmbedding_size):
+        # input: condi_size means the number of condition class (Default:4)
+        # output: condEmbedding_size means the size we want to convert into
+        super(ConditionEmbegging, self).__init__()
+        self.embedding = nn.Embedding(condi_size, condEmbedding_size)
+
+    def forward(self, input):
+        #input must a LongTensor (condition only has 1 dim)
+        embedded = self.embedding(input)
+        return embedded
+
+# if __name__ == "__main__":
+#     test = EncoderRNN(1,2,3)
+#     print(test)
