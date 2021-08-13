@@ -7,6 +7,7 @@ import math
 import torch
 import torch.nn as nn
 from torch import optim
+import copy
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 
@@ -133,7 +134,7 @@ def train(input_tensor, target_tensor, condition_tensor, encoder: EncoderRNN, de
     linear_cell_optimizer.step()
     embedding_optimizer.step()
 
-    return loss.item() / target_length
+    return (loss.item() / target_length), encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding
 
 
 def asMinutes(s):
@@ -170,13 +171,20 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
 
     criterion = nn.CrossEntropyLoss()
 
+    lower_loss = 9999
+    best_encoder_weight = copy.deepcopy(encoder.state_dict())
+    best_decoder_weight = copy.deepcopy(decoder.state_dict())
+    best_hiddenLinear_weight = copy.deepcopy(hiddenLinear.state_dict())
+    best_cellLinear_weight = copy.deepcopy(cellLinear.state_dict())
+    best_conditionEmbedding_weight = copy.deepcopy(conditionEmbedding.state_dict())
+
     for iter in range(1, n_iters + 1):
         training_pair = training_pairs[iter - 1]
         input_tensor = training_pair[0]
         target_tensor = training_pair[0]
         condition_tensor = training_pair[1]
 
-        loss = train(input_tensor, target_tensor, condition_tensor, encoder,
+        loss,encoderOut, decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut = train(input_tensor, target_tensor, condition_tensor, encoder,
                      decoder, hiddenLinear, cellLinear, conditionEmbedding, encoder_optimizer, decoder_optimizer,
                      linear_hidden_optimizer,
                      linear_cell_optimizer, embedding_optimizeer, criterion)
@@ -186,10 +194,23 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
         if iter % print_every == 0:
             print(f"print_loss_total:{print_loss_total},print_every:{print_every} ")
             print_loss_avg = print_loss_total / print_every
+            if print_loss_avg < lower_loss:
+                best_encoder_weight = copy.deepcopy(encoderOut.state_dict())
+                best_decoder_weight = copy.deepcopy(decoderOut.state_dict())
+                best_hiddenLinear_weight = copy.deepcopy(hiddenLinearOut.state_dict())
+                best_cellLinear_weight = copy.deepcopy(cellLinearOut.state_dict())
+                best_conditionEmbedding_weight = copy.deepcopy(conditionEmbeddingOut.state_dict())
+                print("Save Model!")
             print_loss_total = 0
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
         # TODO: Handle model save here(maybe store parameter and final output great model and save outside)
+    encoder.load_state_dict(best_encoder_weight)
+    decoder.load_state_dict(best_decoder_weight)
+    hiddenLinear.load_state_dict(best_hiddenLinear_weight)
+    cellLinear.load_state_dict(best_cellLinear_weight)
+    conditionEmbedding.load_state_dict(best_conditionEmbedding_weight)
+    return encoder, decoder,hiddenLinear,cellLinear,conditionEmbedding
 
 
 encoder1 = EncoderRNN(vocab_size, hidden_size + condEmbedding_size, latent_size).to(
@@ -199,6 +220,13 @@ hiddenLinear1 = hiddenCellLinear(latent_size + condEmbedding_size, hidden_size +
 cellLinear1 = hiddenCellLinear(latent_size + condEmbedding_size, hidden_size + condEmbedding_size).to(device)
 conditionEmedding1 = ConditionEmbegging(condi_size, condEmbedding_size).to(device)  # condi_size, condEmbedding_size
 
-trainIters(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmedding1, n_iters=75000, print_every=5000,
+encoderFinal, decoderFinal, hiddenLinearFinal, cellLinearFinal, conditionEmbeddingFinal = trainIters(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmedding1, n_iters=1, print_every=5000,
            learning_rate=LR)
 # encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n_iters, print_every=1000, plot_every=100, learning_rate=0.01
+
+# Save Best model
+torch.save(encoderFinal.state_dict(), 'modelWeight/encoderFinal_weight1.pth')
+torch.save(decoderFinal.state_dict(), 'modelWeight/decoderFinal_weight1.pth')
+torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/hiddenLinearFinal_weight1.pth')
+torch.save(cellLinearFinal.state_dict(), 'modelWeight/cellLinearFinal_weight1.pth')
+torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/conditionEmbeddingFinal_weight1.pth')
