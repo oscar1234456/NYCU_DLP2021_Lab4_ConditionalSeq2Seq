@@ -156,6 +156,7 @@ def evaluateGaussian(decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
 
     wordTestset = WordGaussianTestSet(latent_size, condi_size)
     latentList = wordTestset.getGaussianLatent()
+    latenListCell = wordTestset.getGaussianLatent()
     tenseList = wordTestset.getTense()
 
     result = list() #Final answer
@@ -166,15 +167,16 @@ def evaluateGaussian(decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
             conditionEmbedded = conditionEmbedding(tenseTensor).view(1, 1, -1)
             tenseEmbeddingList.append(conditionEmbedded)
 
-        for latent in latentList:
+        for latent, latentCell in zip(latentList,latenListCell):
             #latent = (1,1,32)
             wordResult = list() #4 tense word list
             for tenseEmbedded in tenseEmbeddingList:
-                #TODO: make hidden and cell same latent
-                conditionHiddenCell = torch.cat((latent, tenseEmbedded),2)  # concate condition to hidden
+                #TODO: make hidden and cell same latent (result: not have large difference)
+                conditionHidden = torch.cat((latent, tenseEmbedded),2)  # concate condition to hidden
+                conditionCell = torch.cat((latentCell, tenseEmbedded), 2)  # concate condition to hidden
 
-                condition_hidden_latent_toDe = hiddenLinear(conditionHiddenCell)
-                condition_cell_latent_toDe = cellLinear(conditionHiddenCell)
+                condition_hidden_latent_toDe = hiddenLinear(conditionHidden)
+                condition_cell_latent_toDe = cellLinear(conditionCell)
 
                 decoder_input = torch.tensor([[SOS_token]], device=device)
                 decoder_hidden = (condition_hidden_latent_toDe,  condition_cell_latent_toDe)
