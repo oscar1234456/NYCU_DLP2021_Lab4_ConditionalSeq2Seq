@@ -19,6 +19,7 @@ from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 from dataloader import WordSet
 from layer import EncoderRNN, DecoderRNN, hiddenCellLinear, ConditionEmbegging
 from utility import reparameter
+from testScore import evaluateBLEU
 
 ##
 """========================================================================================
@@ -48,7 +49,7 @@ print(f"Using device:{device}")
 SOS_token = 0
 EOS_token = 1
 # ----------Hyper Parameters----------#
-hidden_size = 128
+hidden_size = 256
 # The number of vocabulary
 vocab_size = 28
 latent_size = 32
@@ -204,6 +205,7 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
             print_loss_total = 0
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
+            evaluateBLEU(encoderOut, decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut, condEmbedding_size)
         # TODO: Handle model save here(maybe store parameter and final output great model and save outside)
     encoder.load_state_dict(best_encoder_weight)
     decoder.load_state_dict(best_decoder_weight)
@@ -220,13 +222,13 @@ hiddenLinear1 = hiddenCellLinear(latent_size + condEmbedding_size, hidden_size +
 cellLinear1 = hiddenCellLinear(latent_size + condEmbedding_size, hidden_size + condEmbedding_size).to(device)
 conditionEmedding1 = ConditionEmbegging(condi_size, condEmbedding_size).to(device)  # condi_size, condEmbedding_size
 
-encoderFinal, decoderFinal, hiddenLinearFinal, cellLinearFinal, conditionEmbeddingFinal = trainIters(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmedding1, n_iters=75000, print_every=5000,
+encoderFinal, decoderFinal, hiddenLinearFinal, cellLinearFinal, conditionEmbeddingFinal = trainIters(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmedding1, n_iters=150000, print_every=5000,
            learning_rate=LR)
 # encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n_iters, print_every=1000, plot_every=100, learning_rate=0.01
 
 # Save Best model
-torch.save(encoderFinal.state_dict(), 'modelWeight/encoderFinal_weight1.pth')
-torch.save(decoderFinal.state_dict(), 'modelWeight/decoderFinal_weight1.pth')
-torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/hiddenLinearFinal_weight1.pth')
-torch.save(cellLinearFinal.state_dict(), 'modelWeight/cellLinearFinal_weight1.pth')
-torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/conditionEmbeddingFinal_weight1.pth')
+torch.save(encoderFinal.state_dict(), 'modelWeight/0814Test4/encoderFinal_weight1.pth')
+torch.save(decoderFinal.state_dict(), 'modelWeight/0814Test4/decoderFinal_weight1.pth')
+torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/0814Test4/hiddenLinearFinal_weight1.pth')
+torch.save(cellLinearFinal.state_dict(), 'modelWeight/0814Test4/cellLinearFinal_weight1.pth')
+torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/0814Test4/conditionEmbeddingFinal_weight1.pth')
