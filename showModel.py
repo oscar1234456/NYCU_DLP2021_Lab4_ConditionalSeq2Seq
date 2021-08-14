@@ -1,7 +1,7 @@
 ##import
 import torch
 from layer import EncoderRNN, DecoderRNN, hiddenCellLinear, ConditionEmbegging
-from testScore import evaluateBLEU
+from testScore import evaluateBLEU, evaluateGaussian
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 ##
 # Testing Parameters (1)
@@ -27,12 +27,14 @@ cellLinear1 = hiddenCellLinear(latent_size + condEmbedding_size, hidden_size + c
 conditionEmbedding1 = ConditionEmbegging(condi_size, condEmbedding_size).to(device)  # condi_size, condEmbedding_size.
 
 ##load model weight
-encoder1.load_state_dict(torch.load('modelWeight/0814Test3/encoderFinal_weight1.pth'))
-decoder1.load_state_dict(torch.load('modelWeight/0814Test3/decoderFinal_weight1.pth'))
-hiddenLinear1.load_state_dict(torch.load('modelWeight/0814Test3/hiddenLinearFinal_weight1.pth'))
-cellLinear1.load_state_dict(torch.load('modelWeight/0814Test3/cellLinearFinal_weight1.pth'))
-conditionEmbedding1.load_state_dict(torch.load('modelWeight/0814Test3/conditionEmbeddingFinal_weight1.pth'))
+encoder1.load_state_dict(torch.load('modelWeight/0814Test6/encoderFinal_weight1.pth'))
+decoder1.load_state_dict(torch.load('modelWeight/0814Test6/decoderFinal_weight1.pth'))
+hiddenLinear1.load_state_dict(torch.load('modelWeight/0814Test6/hiddenLinearFinal_weight1.pth'))
+cellLinear1.load_state_dict(torch.load('modelWeight/0814Test6/cellLinearFinal_weight1.pth'))
+conditionEmbedding1.load_state_dict(torch.load('modelWeight/0814Test6/conditionEmbeddingFinal_weight1.pth'))
 
 ##
-evaluateBLEU(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmbedding1,condEmbedding_size)
+# evaluateBLEU(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmbedding1,condEmbedding_size)
 #encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging, condEmbedding_size
+evaluateGaussian(decoder1, hiddenLinear1, cellLinear1, conditionEmbedding1, condEmbedding_size, latent_size, condi_size)
+#decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging, condEmbedding_size, laten_size, condi_size

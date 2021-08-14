@@ -5,7 +5,7 @@ from os import system
 import torch
 from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 from layer import EncoderRNN, DecoderRNN, hiddenCellLinear, ConditionEmbegging
-from dataloader import WordTestSet
+from dataloader import WordTestSet, WordGaussianTestSet
 from utility import reparameter
 
 ################################
@@ -134,6 +134,81 @@ def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCell
     cellLinear.train()
     conditionEmbedding.train()
     return score/testingNum
+
+##
+def evaluateGaussian(decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
+                     cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging,
+                     condEmbedding_size, latent_size, condi_size):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Using device:{device} Evaluating!")
+    print("-" * 5, end='')
+    print("Evaluation Begin", end='')
+    print("-" * 5)
+
+    SOS_token = 0
+    EOS_token = 1
+    # all model has already definded its layer size
+    # open eval mode
+    decoder.eval()
+    hiddenLinear.eval()
+    cellLinear.eval()
+    conditionEmbedding.eval()
+
+    wordTestset = WordGaussianTestSet(latent_size, condi_size)
+    latentList = wordTestset.getGaussianLatent()
+    tenseList = wordTestset.getTense()
+
+    result = list() #Final answer
+
+    with torch.no_grad():
+        tenseEmbeddingList = list()
+        for tenseTensor in tenseList:
+            conditionEmbedded = conditionEmbedding(tenseTensor).view(1, 1, -1)
+            tenseEmbeddingList.append(conditionEmbedded)
+
+        for latent in latentList:
+            #latent = (1,1,32)
+            wordResult = list() #4 tense word list
+            for tenseEmbedded in tenseEmbeddingList:
+                #TODO: make hidden and cell same latent
+                conditionHiddenCell = torch.cat((latent, tenseEmbedded),2)  # concate condition to hidden
+
+                condition_hidden_latent_toDe = hiddenLinear(conditionHiddenCell)
+                condition_cell_latent_toDe = cellLinear(conditionHiddenCell)
+
+                decoder_input = torch.tensor([[SOS_token]], device=device)
+                decoder_hidden = (condition_hidden_latent_toDe,  condition_cell_latent_toDe)
+
+                decorderResult = list()
+
+                for di in range(30): #Set MAX_Length of word is 30
+                    decoder_output, decoder_hidden = decoder(decoder_input, decoder_hidden)
+                    # loss += criterion(decoder_output, target_tensor[di])
+                    topv, topi = decoder_output.topk(1)
+                    decoder_input = topi.squeeze().detach()
+                    decorderResult.append(decoder_input)
+                    if decoder_input.item() == EOS_token:
+                        break
+                targetWord = WordTestSet.vec2word(decorderResult)  # targetWord:String
+                wordResult.append(targetWord)
+            result.append(wordResult)
+    gaussianScore = Gaussian_score(result)
+    print(f"Gaussian_score: {gaussianScore}")
+    print("-" * 5, end='')
+    print("Evaluation Finish", end='')
+    print("-" * 5)
+
+    # close eval mode
+    decoder.train()
+    hiddenLinear.train()
+    cellLinear.train()
+    conditionEmbedding.train()
+
+    return gaussianScore
+
+
+
+
 
 if __name__ == "__main__":
     testingPairs = WordTestSet().getWordPair()

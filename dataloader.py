@@ -90,6 +90,21 @@ class WordTestSet:
                 result.append(chr(letter+95))
         return "".join(result)
 
+class WordGaussianTestSet:
+    def __init__(self, latent_size, condi_size):
+        self.latent_size = latent_size
+        self.condi_size = condi_size
+    def getGaussianLatent(self):
+        result = list()
+        for i in range(100):
+            result.append(torch.randn(1, 1, self.latent_size, device=device))
+        return result
+    def getTense(self):
+        result = list()
+        for i in range(self.condi_size):
+            result.append(torch.cuda.LongTensor([i]))
+        return result
+
 
 if __name__ == '__main__':
     # a = WordSet()
