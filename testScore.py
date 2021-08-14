@@ -197,6 +197,8 @@ def evaluateGaussian(decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
     print("-" * 5, end='')
     print("Evaluation Finish", end='')
     print("-" * 5)
+    print("Detail:")
+    print(result)
 
     # close eval mode
     decoder.train()
