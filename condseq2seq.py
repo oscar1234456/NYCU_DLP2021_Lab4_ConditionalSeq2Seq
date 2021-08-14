@@ -173,7 +173,8 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
 
     criterion = nn.CrossEntropyLoss()
 
-    lower_loss = 9999
+    # lower_loss = 9999
+    best_BLEU_score = -999
     best_encoder_weight = copy.deepcopy(encoder.state_dict())
     best_decoder_weight = copy.deepcopy(decoder.state_dict())
     best_hiddenLinear_weight = copy.deepcopy(hiddenLinear.state_dict())
@@ -194,19 +195,22 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
         plot_loss_total += loss
 
         if iter % print_every == 0:
+            print("-"*50)
             print(f"print_loss_total:{print_loss_total},print_every:{print_every} ")
             print_loss_avg = print_loss_total / print_every
-            if print_loss_avg < lower_loss:
+            BLEUScore = evaluateBLEU(encoderOut, decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut,
+                         condEmbedding_size)
+            if BLEUScore > best_BLEU_score:
                 best_encoder_weight = copy.deepcopy(encoderOut.state_dict())
                 best_decoder_weight = copy.deepcopy(decoderOut.state_dict())
                 best_hiddenLinear_weight = copy.deepcopy(hiddenLinearOut.state_dict())
                 best_cellLinear_weight = copy.deepcopy(cellLinearOut.state_dict())
                 best_conditionEmbedding_weight = copy.deepcopy(conditionEmbeddingOut.state_dict())
-                print("Save Model!")
+                print("BLEU Score UP! Save Model!")
             print_loss_total = 0
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
-            evaluateBLEU(encoderOut, decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut, condEmbedding_size)
+
         # TODO: Handle model save here(maybe store parameter and final output great model and save outside)
     encoder.load_state_dict(best_encoder_weight)
     decoder.load_state_dict(best_decoder_weight)
@@ -228,8 +232,8 @@ encoderFinal, decoderFinal, hiddenLinearFinal, cellLinearFinal, conditionEmbeddi
 # encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n_iters, print_every=1000, plot_every=100, learning_rate=0.01
 
 # Save Best model
-torch.save(encoderFinal.state_dict(), 'modelWeight/0814Test5/encoderFinal_weight1.pth')
-torch.save(decoderFinal.state_dict(), 'modelWeight/0814Test5/decoderFinal_weight1.pth')
-torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/0814Test5/hiddenLinearFinal_weight1.pth')
-torch.save(cellLinearFinal.state_dict(), 'modelWeight/0814Test5/cellLinearFinal_weight1.pth')
-torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/0814Test5/conditionEmbeddingFinal_weight1.pth')
+torch.save(encoderFinal.state_dict(), 'modelWeight/0814Test6/encoderFinal_weight1.pth')
+torch.save(decoderFinal.state_dict(), 'modelWeight/0814Test6/decoderFinal_weight1.pth')
+torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/0814Test6/hiddenLinearFinal_weight1.pth')
+torch.save(cellLinearFinal.state_dict(), 'modelWeight/0814Test6/cellLinearFinal_weight1.pth')
+torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/0814Test6/conditionEmbeddingFinal_weight1.pth')
