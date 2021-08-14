@@ -206,6 +206,7 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
                 best_hiddenLinear_weight = copy.deepcopy(hiddenLinearOut.state_dict())
                 best_cellLinear_weight = copy.deepcopy(cellLinearOut.state_dict())
                 best_conditionEmbedding_weight = copy.deepcopy(conditionEmbeddingOut.state_dict())
+                best_BLEU_score = BLEUScore
                 print("BLEU Score UP! Save Model!")
             print_loss_total = 0
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
