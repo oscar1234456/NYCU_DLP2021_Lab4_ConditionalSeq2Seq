@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fdb0df4e-718c-40a6-9ae5-447661273c25" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/condseq2seq.py" beforeDir="false" afterPath="$PROJECT_DIR$/condseq2seq.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -184,7 +185,7 @@
       <workItem from="1628770742122" duration="18510000" />
       <workItem from="1628823004303" duration="41821000" />
       <workItem from="1628914374012" duration="29676000" />
-      <workItem from="1628995895874" duration="1286000" />
+      <workItem from="1628995895874" duration="4145000" />
     </task>
     <servers />
   </component>
