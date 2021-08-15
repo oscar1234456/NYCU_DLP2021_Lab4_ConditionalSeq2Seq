@@ -54,14 +54,14 @@ def Gaussian_score(words):
 
 ##
 def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
-                 cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging, condEmbedding_size, show = True):
+                 cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging, condEmbedding_size, show = True, testTime = False):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if show:
         print(f"Using device:{device} Evaluating!")
         print("-" * 5, end='')
         print("Evaluation Begin", end='')
         print("-" * 5)
-
+    resultHistory = list()
     SOS_token = 0
     EOS_token = 1
     # all model has already definded its layer size
@@ -73,7 +73,7 @@ def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCell
     conditionEmbedding.eval()
 
     # load testing set
-    testingPairs = WordTestSet().getWordPair() #[[[first word(Tensor), tense(Tensor)],[need to convert(String), tense(Tensor)]],...]
+    testingPairs = WordTestSet().getWordPair() #[[[first word(Tensor), tense(Tensor), word(String)],[need to convert(String), tense(Tensor)]],...]
 
     testingNum = len(testingPairs)
     score = 0
@@ -87,6 +87,7 @@ def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCell
         input_tensor = testingPair[0][0]
         encoder_hidden = encoder.initHidden(condEmbedding_size)
         encoder_cell = encoder.initCell(condEmbedding_size)
+        input_word = testingPair[0][2]
 
         with torch.no_grad():
             firstConditionEmbedded = conditionEmbedding(firstCondition_tensor).view(1, 1, -1)
@@ -123,6 +124,7 @@ def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCell
                 if decoder_input.item() == EOS_token:
                     break
         targetWord = WordTestSet.vec2word(decorderResult)
+        resultHistory.append((input_word, reference, targetWord))
         score += compute_bleu(targetWord, reference)
     if show:
         print(f"Average BLEU-4 score: {score/testingNum}")
@@ -135,12 +137,14 @@ def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCell
     hiddenLinear.train()
     cellLinear.train()
     conditionEmbedding.train()
+    if testTime:
+        return score/testingNum, resultHistory
     return score/testingNum
 
 ##
 def evaluateGaussian(decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
                      cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging,
-                     condEmbedding_size, latent_size, condi_size, show = True):
+                     condEmbedding_size, latent_size, condi_size, show = True, detail = False):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if show:
         print(f"Using device:{device} Evaluating!")
@@ -203,8 +207,9 @@ def evaluateGaussian(decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
         print("-" * 5, end='')
         print("Evaluation Finish", end='')
         print("-" * 5)
-        # print("Detail:")
-        # print(result)
+        if detail:
+            print("Detail:")
+            print(result)
 
     # close eval mode
     decoder.train()

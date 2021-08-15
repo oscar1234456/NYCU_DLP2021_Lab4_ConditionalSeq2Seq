@@ -75,7 +75,7 @@ class WordTestSet:
         tenseConvert = [[0,3],[0,2],[0,1],[0,1],[3,1],[0,2],[3,0],[2,0],[2,3],[2,1]]
         pairsList = list()
         for wordLine, tenseTuple in zip(self.wordBank,tenseConvert):
-            pairsList.append([[self._word2Tensor(wordLine[0]), torch.cuda.LongTensor([tenseTuple[0]])],
+            pairsList.append([[self._word2Tensor(wordLine[0]), torch.cuda.LongTensor([tenseTuple[0]]), wordLine[0]],
                             [wordLine[1], torch.cuda.LongTensor([tenseTuple[1]])]])
         return pairsList
     @staticmethod

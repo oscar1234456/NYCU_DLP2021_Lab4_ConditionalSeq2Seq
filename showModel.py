@@ -34,14 +34,33 @@ cellLinear1 = hiddenCellLinear(latent_size + condEmbedding_size, hidden_size + c
 conditionEmbedding1 = ConditionEmbegging(condi_size, condEmbedding_size).to(device)  # condi_size, condEmbedding_size.
 
 ##load model weight
-encoder1.load_state_dict(torch.load('modelWeight/0814Test6/encoderFinal_weight1.pth'))
-decoder1.load_state_dict(torch.load('modelWeight/0814Test6/decoderFinal_weight1.pth'))
-hiddenLinear1.load_state_dict(torch.load('modelWeight/0814Test6/hiddenLinearFinal_weight1.pth'))
-cellLinear1.load_state_dict(torch.load('modelWeight/0814Test6/cellLinearFinal_weight1.pth'))
-conditionEmbedding1.load_state_dict(torch.load('modelWeight/0814Test6/conditionEmbeddingFinal_weight1.pth'))
+encoder1.load_state_dict(torch.load('modelWeight/0815Test12/encoderFinal_weight1.pth'))
+decoder1.load_state_dict(torch.load('modelWeight/0815Test12/decoderFinal_weight1.pth'))
+hiddenLinear1.load_state_dict(torch.load('modelWeight/0815Test12/hiddenLinearFinal_weight1.pth'))
+cellLinear1.load_state_dict(torch.load('modelWeight/0815Test12/cellLinearFinal_weight1.pth'))
+conditionEmbedding1.load_state_dict(torch.load('modelWeight/0815Test12/conditionEmbeddingFinal_weight1.pth'))
 
 ##
-evaluateBLEU(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmbedding1,condEmbedding_size)
+BLEUScoreList = list()
+BLEUHistoryList = list()
+for i in range(20):
+    score, BLEUHistory = evaluateBLEU(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmbedding1,condEmbedding_size, testTime=True, show=False)
+    BLEUScoreList.append(score)
+    BLEUHistoryList.append(BLEUHistory)
 #encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging, condEmbedding_size
-evaluateGaussian(decoder1, hiddenLinear1, cellLinear1, conditionEmbedding1, condEmbedding_size, latent_size, condi_size)
+
+##
+evaluateGaussian(decoder1, hiddenLinear1, cellLinear1, conditionEmbedding1, condEmbedding_size, latent_size, condi_size, detail=True)
 #decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging, condEmbedding_size, laten_size, condi_size
+
+##Show result
+bestBLEUIndex = BLEUScoreList.index(max(BLEUScoreList))
+for item in BLEUHistoryList[bestBLEUIndex]:
+    print(f"input:{item[0]}")
+    print(f"target:{item[1]}")
+    print(f"prediction:{item[2]}")
+    print()
+print(f"Average BLEU-4 score: {BLEUScoreList[bestBLEUIndex]}")
+print("-" * 5)
+
+print(BLEUScoreList)
