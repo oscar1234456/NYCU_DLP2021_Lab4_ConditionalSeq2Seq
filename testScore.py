@@ -54,12 +54,13 @@ def Gaussian_score(words):
 
 ##
 def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
-                 cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging, condEmbedding_size):
+                 cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging, condEmbedding_size, show = True):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device:{device} Evaluating!")
-    print("-" * 5, end='')
-    print("Evaluation Begin", end='')
-    print("-" * 5)
+    if show:
+        print(f"Using device:{device} Evaluating!")
+        print("-" * 5, end='')
+        print("Evaluation Begin", end='')
+        print("-" * 5)
 
     SOS_token = 0
     EOS_token = 1
@@ -123,10 +124,11 @@ def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCell
                     break
         targetWord = WordTestSet.vec2word(decorderResult)
         score += compute_bleu(targetWord, reference)
-    print(f"Average BLEU-4 score: {score/testingNum}")
-    print("-"*5, end='')
-    print("Evaluation Finish", end='')
-    print("-" * 5)
+    if show:
+        print(f"Average BLEU-4 score: {score/testingNum}")
+        print("-"*5, end='')
+        print("Evaluation Finish", end='')
+        print("-" * 5)
     # close eval mode
     encoder.train()
     decoder.train()
@@ -138,12 +140,13 @@ def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCell
 ##
 def evaluateGaussian(decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
                      cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging,
-                     condEmbedding_size, latent_size, condi_size):
+                     condEmbedding_size, latent_size, condi_size, show = True):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device:{device} Evaluating!")
-    print("-" * 5, end='')
-    print("Evaluation Begin", end='')
-    print("-" * 5)
+    if show:
+        print(f"Using device:{device} Evaluating!")
+        print("-" * 5, end='')
+        print("Evaluation Begin", end='')
+        print("-" * 5)
 
     SOS_token = 0
     EOS_token = 1
@@ -195,12 +198,13 @@ def evaluateGaussian(decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
                 wordResult.append(targetWord)
             result.append(wordResult)
     gaussianScore = Gaussian_score(result)
-    print(f"Gaussian_score: {gaussianScore}")
-    print("-" * 5, end='')
-    print("Evaluation Finish", end='')
-    print("-" * 5)
-    # print("Detail:")
-    # print(result)
+    if show:
+        print(f"Gaussian_score: {gaussianScore}")
+        print("-" * 5, end='')
+        print("Evaluation Finish", end='')
+        print("-" * 5)
+        # print("Detail:")
+        # print(result)
 
     # close eval mode
     decoder.train()
