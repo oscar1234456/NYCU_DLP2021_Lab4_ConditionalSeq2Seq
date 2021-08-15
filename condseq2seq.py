@@ -269,7 +269,7 @@ hiddenLinear1 = hiddenCellLinear(latent_size + condEmbedding_size, hidden_size +
 cellLinear1 = hiddenCellLinear(latent_size + condEmbedding_size, hidden_size + condEmbedding_size).to(device)
 conditionEmedding1 = ConditionEmbegging(condi_size, condEmbedding_size).to(device)  # condi_size, condEmbedding_size
 
-encoderFinal, decoderFinal, hiddenLinearFinal, cellLinearFinal, conditionEmbeddingFinal, gaussianWeightSetFinal = trainIters(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmedding1, n_iters=1, print_every=1000,
+encoderFinal, decoderFinal, hiddenLinearFinal, cellLinearFinal, conditionEmbeddingFinal, gaussianWeightSetFinal = trainIters(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmedding1, n_iters=300000, print_every=1000,
            learning_rate=LR)
 # encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n_iters, print_every=1000, plot_every=100, learning_rate=0.01
 
