@@ -56,7 +56,7 @@ def Gaussian_score(words):
 def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
                  cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging, condEmbedding_size, show = True, testTime = False):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if show:
+    if show and not testTime:
         print(f"Using device:{device} Evaluating!")
         print("-" * 5, end='')
         print("Evaluation Begin", end='')
@@ -126,7 +126,7 @@ def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCell
         targetWord = WordTestSet.vec2word(decorderResult)
         resultHistory.append((input_word, reference, targetWord))
         score += compute_bleu(targetWord, reference)
-    if show:
+    if show and not testTime:
         print(f"Average BLEU-4 score: {score/testingNum}")
         print("-"*5, end='')
         print("Evaluation Finish", end='')
@@ -138,15 +138,15 @@ def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCell
     cellLinear.train()
     conditionEmbedding.train()
     if testTime:
-        return score/testingNum, resultHistory
+        return round(score/testingNum, 1), resultHistory
     return score/testingNum
 
 ##
 def evaluateGaussian(decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
                      cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging,
-                     condEmbedding_size, latent_size, condi_size, show = True, detail = False):
+                     condEmbedding_size, latent_size, condi_size, show = True, detail = False, testTime = False):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if show:
+    if show and not testTime:
         print(f"Using device:{device} Evaluating!")
         print("-" * 5, end='')
         print("Evaluation Begin", end='')
@@ -202,7 +202,7 @@ def evaluateGaussian(decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
                 wordResult.append(targetWord)
             result.append(wordResult)
     gaussianScore = Gaussian_score(result)
-    if show:
+    if show and not testTime:
         print(f"Gaussian_score: {gaussianScore}")
         print("-" * 5, end='')
         print("Evaluation Finish", end='')
@@ -216,6 +216,9 @@ def evaluateGaussian(decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,
     hiddenLinear.train()
     cellLinear.train()
     conditionEmbedding.train()
+
+    if testTime:
+        return round(gaussianScore,2), result
 
     return gaussianScore
 

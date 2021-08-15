@@ -41,6 +41,7 @@ cellLinear1.load_state_dict(torch.load('modelWeight/0815Test12/cellLinearFinal_w
 conditionEmbedding1.load_state_dict(torch.load('modelWeight/0815Test12/conditionEmbeddingFinal_weight1.pth'))
 
 ##
+print("Evaluating Start! Please  wait!")
 BLEUScoreList = list()
 BLEUHistoryList = list()
 for i in range(20):
@@ -50,10 +51,18 @@ for i in range(20):
 #encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging, condEmbedding_size
 
 ##
-evaluateGaussian(decoder1, hiddenLinear1, cellLinear1, conditionEmbedding1, condEmbedding_size, latent_size, condi_size, detail=True)
+GaussianScoreList = list()
+GaussianHistoryList = list()
+for i in range(20):
+    gaussianScore, result = evaluateGaussian(decoder1, hiddenLinear1, cellLinear1, conditionEmbedding1, condEmbedding_size, latent_size, condi_size, testTime=True)
+    GaussianScoreList.append(gaussianScore)
+    GaussianHistoryList.append(result)
 #decoder:DecoderRNN, hiddenLinear:hiddenCellLinear,cellLinear:hiddenCellLinear, conditionEmbedding:ConditionEmbegging, condEmbedding_size, laten_size, condi_size
 
 ##Show result
+print("-" * 5,end="")
+print("BLEU-4",end="")
+print("-" * 5)
 bestBLEUIndex = BLEUScoreList.index(max(BLEUScoreList))
 for item in BLEUHistoryList[bestBLEUIndex]:
     print(f"input:{item[0]}")
@@ -63,4 +72,11 @@ for item in BLEUHistoryList[bestBLEUIndex]:
 print(f"Average BLEU-4 score: {BLEUScoreList[bestBLEUIndex]}")
 print("-" * 5)
 
-print(BLEUScoreList)
+print("-" * 5,end="")
+print("Gaussian",end="")
+print("-" * 5)
+bestGaussianIndex = GaussianScoreList.index(max(GaussianScoreList))
+print("Details:")
+for index, item in enumerate(GaussianHistoryList[bestGaussianIndex]):
+    print(f"{index+1}:{item}")
+print(f"Gaussian score: {GaussianScoreList[bestGaussianIndex]}")

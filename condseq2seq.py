@@ -223,15 +223,14 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
         print_loss_total += loss
         plot_loss_total += loss
 
-        BLEUScoreEvery = evaluateBLEU(encoderOut, decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut,
-                                      condEmbedding_size, show=False)
-        GaussianScoreEvery = evaluateGaussian(decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut,
-                                              condEmbedding_size, latent_size, condi_size, show=False)
+        # BLEUScoreEvery = evaluateBLEU(encoderOut, decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut,
+        #                               condEmbedding_size, show=False)
+        # GaussianScoreEvery = evaluateGaussian(decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut,
+        #                                       condEmbedding_size, latent_size, condi_size, show=False)
 
         KLDLossRecoder[1].append(KLDLossValue.item())
         crossEntropyRecoder[1].append(crossEntropyLoss.item())
-        BLEURecoder[1].append(BLEUScoreEvery)
-        GaussianRecoder[1].append(GaussianScoreEvery)
+
         KLDWeightRecoder[1].append(use_KLD_Weight)
         tfRecoder[1].append(use_TF_ratio)
 
@@ -243,6 +242,10 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
                                      condEmbedding_size)
             GaussianScore = evaluateGaussian(decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut,
                                              condEmbedding_size, latent_size, condi_size)
+            BLEURecoder[1].append(BLEUScore)
+            GaussianRecoder[1].append(GaussianScore)
+            BLEURecoder[0].append(iter)
+            GaussianRecoder[0].append(iter)
             if BLEUScore > best_BLEU_score:
                 best_encoder_weight = copy.deepcopy(encoderOut.state_dict())
                 best_decoder_weight = copy.deepcopy(decoderOut.state_dict())
