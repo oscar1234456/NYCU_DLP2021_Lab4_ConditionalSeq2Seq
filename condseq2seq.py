@@ -57,7 +57,7 @@ condEmbedding_size = 8
 condi_size = 4
 teacher_forcing_ratio = 1.0
 # empty_input_ratio = 0.1
-KLD_weight = 0.0
+KLD_weight = 0.1
 LR = 0.01
 
 
@@ -249,8 +249,8 @@ encoderFinal, decoderFinal, hiddenLinearFinal, cellLinearFinal, conditionEmbeddi
 # encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n_iters, print_every=1000, plot_every=100, learning_rate=0.01
 
 # Save Best model
-torch.save(encoderFinal.state_dict(), 'modelWeight/0814Test10/encoderFinal_weight1.pth')
-torch.save(decoderFinal.state_dict(), 'modelWeight/0814Test10/decoderFinal_weight1.pth')
-torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/0814Test10/hiddenLinearFinal_weight1.pth')
-torch.save(cellLinearFinal.state_dict(), 'modelWeight/0814Test10/cellLinearFinal_weight1.pth')
-torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/0814Test10/conditionEmbeddingFinal_weight1.pth')
+torch.save(encoderFinal.state_dict(), 'modelWeight/0814Test11/encoderFinal_weight1.pth')
+torch.save(decoderFinal.state_dict(), 'modelWeight/0814Test11/decoderFinal_weight1.pth')
+torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/0814Test11/hiddenLinearFinal_weight1.pth')
+torch.save(cellLinearFinal.state_dict(), 'modelWeight/0814Test11/cellLinearFinal_weight1.pth')
+torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/0814Test11/conditionEmbeddingFinal_weight1.pth')
