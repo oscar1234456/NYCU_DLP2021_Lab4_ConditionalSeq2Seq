@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fdb0df4e-718c-40a6-9ae5-447661273c25" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/condseq2seq.py" beforeDir="false" afterPath="$PROJECT_DIR$/condseq2seq.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/showModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/showModel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/testScore.py" beforeDir="false" afterPath="$PROJECT_DIR$/testScore.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -47,7 +50,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.showModel">
+  <component name="RunManager" selected="Python.condseq2seq">
     <configuration name="condseq2seq" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="condseq2seq" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -160,8 +163,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.showModel" />
         <item itemvalue="Python.condseq2seq" />
+        <item itemvalue="Python.showModel" />
         <item itemvalue="Python.dataloader" />
         <item itemvalue="Python.testScore" />
         <item itemvalue="Python.layer" />
@@ -183,7 +186,8 @@
       <workItem from="1628737405002" duration="3526000" />
       <workItem from="1628770742122" duration="18510000" />
       <workItem from="1628823004303" duration="41821000" />
-      <workItem from="1628914374012" duration="19264000" />
+      <workItem from="1628914374012" duration="29676000" />
+      <workItem from="1628995895874" duration="1042000" />
     </task>
     <servers />
   </component>
@@ -235,8 +239,8 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/condseq2seq$dataloader.coverage" NAME="dataloader Coverage Results" MODIFIED="1628880050905" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/condseq2seq$testScore.coverage" NAME="testScore Coverage Results" MODIFIED="1628877389426" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/condseq2seq$condseq2seq.coverage" NAME="condseq2seq Coverage Results" MODIFIED="1628948760555" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/condseq2seq$showModel.coverage" NAME="showModel Coverage Results" MODIFIED="1628952671255" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/condseq2seq$condseq2seq.coverage" NAME="condseq2seq Coverage Results" MODIFIED="1628996948882" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/condseq2seq$showModel.coverage" NAME="showModel Coverage Results" MODIFIED="1628996028789" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/condseq2seq$layer.coverage" NAME="layer Coverage Results" MODIFIED="1628825492128" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

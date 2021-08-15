@@ -19,7 +19,7 @@ from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 from dataloader import WordSet
 from layer import EncoderRNN, DecoderRNN, hiddenCellLinear, ConditionEmbegging
 from utility import reparameter, KLDLoss
-from testScore import evaluateBLEU
+from testScore import evaluateBLEU, evaluateGaussian
 
 ##
 """========================================================================================
@@ -57,13 +57,13 @@ condEmbedding_size = 8
 condi_size = 4
 teacher_forcing_ratio = 1.0
 # empty_input_ratio = 0.1
-KLD_weight = 0.1
+KLD_weight = 0.0
 LR = 0.01
 
 
 def train(input_tensor, target_tensor, condition_tensor, encoder: EncoderRNN, decoder: DecoderRNN, hiddenLinear,
           cellLinear, conditionEmbedding, encoder_optimizer, decoder_optimizer,
-          linear_hidden_optimizer, linear_cell_optimizer, embedding_optimizer, criterion):
+          linear_hidden_optimizer, linear_cell_optimizer, embedding_optimizer, criterion,use_KLD_Weight):
     encoder_hidden = encoder.initHidden(condEmbedding_size)  # return (1,1,hidden_size) for hidden_0
     encoder_cell = encoder.initCell(condEmbedding_size)  # return (1,1,hidden_size) for cell_0
 
@@ -90,8 +90,9 @@ def train(input_tensor, target_tensor, condition_tensor, encoder: EncoderRNN, de
                                                                  encoder_hidden)  # encoder(input, hidden->tuple(h_0,c_0))
     # encoder_result: (hidden_mean, hidden_logVar, cell_mean, cell_logVar)
 
-    loss = (KLDLoss(hidden_mean, hidden_logVar) + KLDLoss(cell_mean, cell_logVar)) * KLD_weight
-
+    crossEntropyLoss = 0.0
+    KLDLossvalue = (KLDLoss(hidden_mean, hidden_logVar) + KLDLoss(cell_mean, cell_logVar))
+    loss = KLDLossvalue * use_KLD_Weight
     hidden_latent = reparameter(hidden_mean, hidden_logVar)
     cell_latent = reparameter(cell_mean, cell_logVar)
 
@@ -112,9 +113,9 @@ def train(input_tensor, target_tensor, condition_tensor, encoder: EncoderRNN, de
         # Teacher forcing: Feed the target as the next input
         for di in range(target_length):
             decoder_output, decoder_hidden = decoder(decoder_input, decoder_hidden)
-            loss += criterion(decoder_output, target_tensor[di])
+            crossEntropyLoss += criterion(decoder_output, target_tensor[di])
             decoder_input = target_tensor[di]  # Teacher forcing
-            if np.isnan(loss.item()):
+            if np.isnan(crossEntropyLoss.item()):
                 print('Loss value is NaN!')
 
     else:
@@ -124,10 +125,11 @@ def train(input_tensor, target_tensor, condition_tensor, encoder: EncoderRNN, de
             topv, topi = decoder_output.topk(1)
             decoder_input = topi.squeeze().detach()  # detach from history as input
 
-            loss += criterion(decoder_output, target_tensor[di])
+            crossEntropyLoss += criterion(decoder_output, target_tensor[di])
             if decoder_input.item() == EOS_token:
                 break
 
+    loss += crossEntropyLoss
     loss.backward()
 
     encoder_optimizer.step()
@@ -136,7 +138,7 @@ def train(input_tensor, target_tensor, condition_tensor, encoder: EncoderRNN, de
     linear_cell_optimizer.step()
     embedding_optimizer.step()
 
-    return (loss.item() / target_length), encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding
+    return (loss.item() / target_length), encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, KLDLossvalue
 
 
 def asMinutes(s):
@@ -160,6 +162,13 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
 
+    use_KLD_Weight = KLD_weight
+
+    monotonicStartIter = 25001
+    monotonicFinalIter = 65000
+
+    monotonicKLD_Weight_change = (1-KLD_weight)/((monotonicFinalIter-monotonicStartIter)//print_every)
+
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
     linear_hidden_optimizer = optim.SGD(hiddenLinear.parameters(),
@@ -175,6 +184,7 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
 
     # lower_loss = 9999
     best_BLEU_score = -999
+    best_Gaussian_score = -999
     best_encoder_weight = copy.deepcopy(encoder.state_dict())
     best_decoder_weight = copy.deepcopy(decoder.state_dict())
     best_hiddenLinear_weight = copy.deepcopy(hiddenLinear.state_dict())
@@ -187,30 +197,36 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
         target_tensor = training_pair[0]
         condition_tensor = training_pair[1]
 
-        loss,encoderOut, decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut = train(input_tensor, target_tensor, condition_tensor, encoder,
+        loss,encoderOut, decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut, KLDLossValue = train(input_tensor, target_tensor, condition_tensor, encoder,
                      decoder, hiddenLinear, cellLinear, conditionEmbedding, encoder_optimizer, decoder_optimizer,
                      linear_hidden_optimizer,
-                     linear_cell_optimizer, embedding_optimizeer, criterion)
+                     linear_cell_optimizer, embedding_optimizeer, criterion,use_KLD_Weight)
         print_loss_total += loss
         plot_loss_total += loss
 
         if iter % print_every == 0:
             print("-"*50)
-            print(f"print_loss_total:{print_loss_total},print_every:{print_every} ")
+            print(f"print_loss_total:{print_loss_total},print_every:{print_every}, KLDLossValue:{KLDLossValue}")
             print_loss_avg = print_loss_total / print_every
             BLEUScore = evaluateBLEU(encoderOut, decoderOut, hiddenLinearOut, cellLinearOut, conditionEmbeddingOut,
                          condEmbedding_size)
-            if BLEUScore > best_BLEU_score:
+            GaussianScore = evaluateGaussian(decoderOut,hiddenLinearOut,cellLinearOut,conditionEmbeddingOut,
+                                             condEmbedding_size,latent_size,condi_size)
+            if GaussianScore > best_Gaussian_score:
                 best_encoder_weight = copy.deepcopy(encoderOut.state_dict())
                 best_decoder_weight = copy.deepcopy(decoderOut.state_dict())
                 best_hiddenLinear_weight = copy.deepcopy(hiddenLinearOut.state_dict())
                 best_cellLinear_weight = copy.deepcopy(cellLinearOut.state_dict())
                 best_conditionEmbedding_weight = copy.deepcopy(conditionEmbeddingOut.state_dict())
-                best_BLEU_score = BLEUScore
-                print("BLEU Score UP! Save Model!")
+                best_Gaussian_score = GaussianScore
+                # print("BLEU Score UP! Save Model!")
+                print("Gaussian_score Score UP! Save Model!")
             print_loss_total = 0
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
+            if iter >= monotonicStartIter and iter <= monotonicFinalIter:
+                use_KLD_Weight += monotonicKLD_Weight_change
+                print(f"Change Use_KLD_Weight to {use_KLD_Weight} ")
 
         # TODO: Handle model save here(maybe store parameter and final output great model and save outside)
     encoder.load_state_dict(best_encoder_weight)
@@ -228,13 +244,13 @@ hiddenLinear1 = hiddenCellLinear(latent_size + condEmbedding_size, hidden_size +
 cellLinear1 = hiddenCellLinear(latent_size + condEmbedding_size, hidden_size + condEmbedding_size).to(device)
 conditionEmedding1 = ConditionEmbegging(condi_size, condEmbedding_size).to(device)  # condi_size, condEmbedding_size
 
-encoderFinal, decoderFinal, hiddenLinearFinal, cellLinearFinal, conditionEmbeddingFinal = trainIters(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmedding1, n_iters=150000, print_every=5000,
+encoderFinal, decoderFinal, hiddenLinearFinal, cellLinearFinal, conditionEmbeddingFinal = trainIters(encoder1, decoder1, hiddenLinear1, cellLinear1, conditionEmedding1, n_iters=150000, print_every=1000,
            learning_rate=LR)
 # encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n_iters, print_every=1000, plot_every=100, learning_rate=0.01
 
 # Save Best model
-torch.save(encoderFinal.state_dict(), 'modelWeight/0814Test6/encoderFinal_weight1.pth')
-torch.save(decoderFinal.state_dict(), 'modelWeight/0814Test6/decoderFinal_weight1.pth')
-torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/0814Test6/hiddenLinearFinal_weight1.pth')
-torch.save(cellLinearFinal.state_dict(), 'modelWeight/0814Test6/cellLinearFinal_weight1.pth')
-torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/0814Test6/conditionEmbeddingFinal_weight1.pth')
+torch.save(encoderFinal.state_dict(), 'modelWeight/0814Test10/encoderFinal_weight1.pth')
+torch.save(decoderFinal.state_dict(), 'modelWeight/0814Test10/decoderFinal_weight1.pth')
+torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/0814Test10/hiddenLinearFinal_weight1.pth')
+torch.save(cellLinearFinal.state_dict(), 'modelWeight/0814Test10/cellLinearFinal_weight1.pth')
+torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/0814Test10/conditionEmbeddingFinal_weight1.pth')
