@@ -299,17 +299,17 @@ encoderFinal, decoderFinal, hiddenLinearFinal, cellLinearFinal, conditionEmbeddi
 # encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n_iters, print_every=1000, plot_every=100, learning_rate=0.01
 
 # Save Best model
-torch.save(encoderFinal.state_dict(), 'modelWeight/0815Test15/encoderFinal_weight1.pth')
-torch.save(decoderFinal.state_dict(), 'modelWeight/0815Test15/decoderFinal_weight1.pth')
-torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/0815Test15/hiddenLinearFinal_weight1.pth')
-torch.save(cellLinearFinal.state_dict(), 'modelWeight/0815Test15/cellLinearFinal_weight1.pth')
-torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/0815Test15/conditionEmbeddingFinal_weight1.pth')
+torch.save(encoderFinal.state_dict(), 'modelWeight/0815Test16/encoderFinal_weight1.pth')
+torch.save(decoderFinal.state_dict(), 'modelWeight/0815Test16/decoderFinal_weight1.pth')
+torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/0815Test16/hiddenLinearFinal_weight1.pth')
+torch.save(cellLinearFinal.state_dict(), 'modelWeight/0815Test16/cellLinearFinal_weight1.pth')
+torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/0815Test16/conditionEmbeddingFinal_weight1.pth')
 
-torch.save(gaussianWeightSetFinal[0], 'modelWeight/0815Test15/encoderFinal_weight1(Gaussian).pth')
-torch.save(gaussianWeightSetFinal[1], 'modelWeight/0815Test15/decoderFinal_weight1(Gaussian).pth')
-torch.save(gaussianWeightSetFinal[2], 'modelWeight/0815Test15/hiddenLinearFinal_weight1(Gaussian).pth')
-torch.save(gaussianWeightSetFinal[3], 'modelWeight/0815Test15/cellLinearFinal_weight1(Gaussian).pth')
-torch.save(gaussianWeightSetFinal[4], 'modelWeight/0815Test15/conditionEmbeddingFinal_weight1(Gaussian).pth')
+torch.save(gaussianWeightSetFinal[0], 'modelWeight/0815Test16/encoderFinal_weight1(Gaussian).pth')
+torch.save(gaussianWeightSetFinal[1], 'modelWeight/0815Test16/decoderFinal_weight1(Gaussian).pth')
+torch.save(gaussianWeightSetFinal[2], 'modelWeight/0815Test16/hiddenLinearFinal_weight1(Gaussian).pth')
+torch.save(gaussianWeightSetFinal[3], 'modelWeight/0815Test16/cellLinearFinal_weight1(Gaussian).pth')
+torch.save(gaussianWeightSetFinal[4], 'modelWeight/0815Test16/conditionEmbeddingFinal_weight1(Gaussian).pth')
 
 ##Save Training & Testing Accuracy Result
 with open('modelWeight/0815Test15/recoderSet.pickle', 'wb') as f:
