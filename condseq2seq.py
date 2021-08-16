@@ -177,8 +177,15 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
     TFDecadeStartIter = 150001
     TFDecadeFinalIter = 300000
 
+    use_monotonic = False
+    use_cyclical = True
+
+    cyclicalStartIter = 50000
+    cyclicalInternal = 5000
+
     monotonicKLD_Weight_change = (0.6 - KLD_weight) / ((monotonicFinalIter - monotonicStartIter) // print_every)
     TF_Decade_Change = -(teacher_forcing_ratio - 0.8) / ((TFDecadeFinalIter - TFDecadeStartIter) // print_every)
+    cycicalKLD_Weight_change = (0.6 - KLD_weight) / (cyclicalInternal//print_every)
 
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
@@ -208,6 +215,7 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
     best_cellLinear_weight_gaussian = copy.deepcopy(cellLinear.state_dict())
     best_conditionEmbedding_weight_gaussian = copy.deepcopy(conditionEmbedding.state_dict())
 
+    tempCyclicalInterval = 0
     for iter in range(1, n_iters + 1):
         training_pair = training_pairs[iter - 1]
         input_tensor = training_pair[0]
@@ -266,12 +274,24 @@ def trainIters(encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n
             print_loss_total = 0
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
-            if iter >= monotonicStartIter and iter <= monotonicFinalIter:
-                use_KLD_Weight += monotonicKLD_Weight_change
-                print(f"Change Use_KLD_Weight to {use_KLD_Weight} ")
+            if use_monotonic:
+                if iter >= monotonicStartIter and iter <= monotonicFinalIter:
+                    use_KLD_Weight += monotonicKLD_Weight_change
+                    print(f"Change Use_KLD_Weight to {use_KLD_Weight} ")
+            elif use_cyclical:
+                if iter >= cyclicalStartIter:
+                    if iter % 10000 == 0:
+                        use_KLD_Weight = KLD_weight
+                        tempCyclicalInterval = cyclicalInternal
+                    else:
+                        if tempCyclicalInterval >= 0:
+                            use_KLD_Weight += cycicalKLD_Weight_change
+                            tempCyclicalInterval -= print_every
+                            print(f"Change Use_KLD_Weight to {use_KLD_Weight} ")
             if iter >= TFDecadeStartIter and iter <= TFDecadeFinalIter:
                 use_TF_ratio += TF_Decade_Change
                 print(f"Change Use_TF_ratio to {use_TF_ratio} ")
+
 
         # TODO: Handle model save here(maybe store parameter and final output great model and save outside)
     encoder.load_state_dict(best_encoder_weight)
@@ -299,18 +319,18 @@ encoderFinal, decoderFinal, hiddenLinearFinal, cellLinearFinal, conditionEmbeddi
 # encoder, decoder, hiddenLinear, cellLinear, conditionEmbedding, n_iters, print_every=1000, plot_every=100, learning_rate=0.01
 
 # Save Best model
-torch.save(encoderFinal.state_dict(), 'modelWeight/0815Test16/encoderFinal_weight1.pth')
-torch.save(decoderFinal.state_dict(), 'modelWeight/0815Test16/decoderFinal_weight1.pth')
-torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/0815Test16/hiddenLinearFinal_weight1.pth')
-torch.save(cellLinearFinal.state_dict(), 'modelWeight/0815Test16/cellLinearFinal_weight1.pth')
-torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/0815Test16/conditionEmbeddingFinal_weight1.pth')
+torch.save(encoderFinal.state_dict(), 'modelWeight/0815Test17/encoderFinal_weight1.pth')
+torch.save(decoderFinal.state_dict(), 'modelWeight/0815Test17/decoderFinal_weight1.pth')
+torch.save(hiddenLinearFinal.state_dict(), 'modelWeight/0815Test17/hiddenLinearFinal_weight1.pth')
+torch.save(cellLinearFinal.state_dict(), 'modelWeight/0815Test17/cellLinearFinal_weight1.pth')
+torch.save(conditionEmbeddingFinal.state_dict(), 'modelWeight/0815Test17/conditionEmbeddingFinal_weight1.pth')
 
-torch.save(gaussianWeightSetFinal[0], 'modelWeight/0815Test16/encoderFinal_weight1(Gaussian).pth')
-torch.save(gaussianWeightSetFinal[1], 'modelWeight/0815Test16/decoderFinal_weight1(Gaussian).pth')
-torch.save(gaussianWeightSetFinal[2], 'modelWeight/0815Test16/hiddenLinearFinal_weight1(Gaussian).pth')
-torch.save(gaussianWeightSetFinal[3], 'modelWeight/0815Test16/cellLinearFinal_weight1(Gaussian).pth')
-torch.save(gaussianWeightSetFinal[4], 'modelWeight/0815Test16/conditionEmbeddingFinal_weight1(Gaussian).pth')
+torch.save(gaussianWeightSetFinal[0], 'modelWeight/0815Test17/encoderFinal_weight1(Gaussian).pth')
+torch.save(gaussianWeightSetFinal[1], 'modelWeight/0815Test17/decoderFinal_weight1(Gaussian).pth')
+torch.save(gaussianWeightSetFinal[2], 'modelWeight/0815Test17/hiddenLinearFinal_weight1(Gaussian).pth')
+torch.save(gaussianWeightSetFinal[3], 'modelWeight/0815Test17/cellLinearFinal_weight1(Gaussian).pth')
+torch.save(gaussianWeightSetFinal[4], 'modelWeight/0815Test17/conditionEmbeddingFinal_weight1(Gaussian).pth')
 
 ##Save Training & Testing Accuracy Result
-with open('modelWeight/0815Test15/recoderSet.pickle', 'wb') as f:
+with open('modelWeight/0815Test17/recoderSet.pickle', 'wb') as f:
     pickle.dump(recoderSet, f)

@@ -138,7 +138,7 @@ def evaluateBLEU(encoder:EncoderRNN, decoder:DecoderRNN, hiddenLinear:hiddenCell
     cellLinear.train()
     conditionEmbedding.train()
     if testTime:
-        return round(score/testingNum, 1), resultHistory
+        return score/testingNum, resultHistory
     return score/testingNum
 
 ##
