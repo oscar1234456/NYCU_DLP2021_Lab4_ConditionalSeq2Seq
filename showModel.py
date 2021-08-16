@@ -34,11 +34,11 @@ cellLinear1 = hiddenCellLinear(latent_size + condEmbedding_size, hidden_size + c
 conditionEmbedding1 = ConditionEmbegging(condi_size, condEmbedding_size).to(device)  # condi_size, condEmbedding_size.
 
 ##load model weight
-encoder1.load_state_dict(torch.load('modelWeight/0815Test12/encoderFinal_weight1.pth'))
-decoder1.load_state_dict(torch.load('modelWeight/0815Test12/decoderFinal_weight1.pth'))
-hiddenLinear1.load_state_dict(torch.load('modelWeight/0815Test12/hiddenLinearFinal_weight1.pth'))
-cellLinear1.load_state_dict(torch.load('modelWeight/0815Test12/cellLinearFinal_weight1.pth'))
-conditionEmbedding1.load_state_dict(torch.load('modelWeight/0815Test12/conditionEmbeddingFinal_weight1.pth'))
+encoder1.load_state_dict(torch.load('modelWeight/0815Test14/encoderFinal_weight1(Gaussian).pth'))
+decoder1.load_state_dict(torch.load('modelWeight/0815Test14/decoderFinal_weight1(Gaussian).pth'))
+hiddenLinear1.load_state_dict(torch.load('modelWeight/0815Test14/hiddenLinearFinal_weight1(Gaussian).pth'))
+cellLinear1.load_state_dict(torch.load('modelWeight/0815Test14/cellLinearFinal_weight1(Gaussian).pth'))
+conditionEmbedding1.load_state_dict(torch.load('modelWeight/0815Test14/conditionEmbeddingFinal_weight1(Gaussian).pth'))
 
 ##
 print("Evaluating Start! Please  wait!")
